@@ -105,7 +105,7 @@ def generate_answer(db,query):
   
   
   
-db=load_chroma_collection(path='/Users/prakherpandey/Downloads/chroma_database_sang', #replace with path of your persistent directory
+db=load_chroma_collection(path='C:/Users/dell/Documents/SangRak/SangRakShak/chroma_database_sang', #replace with path of your persistent directory
                           name="reviews_collections") #replace with the collection name
 
 
