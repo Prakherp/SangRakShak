@@ -1,44 +1,80 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import './Form.css';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import GoogleButton from 'react-google-button';
+import bcrypt from 'bcryptjs';
+import { CreateUser, EmailPresent } from '../ActionManager';
 
 const Signup = () => {
-  const navigate = useNavigate();
+  const[ email,setEmail] = React.useState("");
+  const [password,setPassword] = React.useState("");
+  const [username, setUsername]= React.useState("");
+  const [confirmPassword, setConfirmPassword]=React.useState("");
+  const [message,setMessage] = React.useState("");
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     // Handle signup logic here
-    navigate('/app');
+    console.log("in submit");
+    setUsername("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setMessage("");
+    await bcrypt.hash(password,10).then((hashedPassword)=>{
+      const UserObject = {
+        username: username,
+        email: email,
+        password: hashedPassword,
+        verified: false
+      };
+      EmailPresent(email).then(presence=>{
+        if(presence===1){
+          console.log("Email is already Present");
+          setMessage("Email has been already registered.");
+        }
+        else if(presence === 0){
+          console.log("Email was not already present");
+          CreateUser(UserObject);
+          setMessage("User Registered. Please, verify through mail.");
+        }
+        else{
+          console.log("Error in checking whether email is present or not. Redirect to error Page.");
+          setMessage("Error in registering, try Again.");
+        }
+      }).catch(err=>{
+        console.log("Error in Checking Email Records.");
+        setMessage("Error in registering, try Again.");
+      });
+     
+    }).catch(err=>{
+      console.log("Error in password checking process: ",err);
+      setMessage("Error in registering, try Again.");
+    });
   };
 
-  const handleGoogleSignupSuccess = (response) => {
-    // Handle Google signup success here
-    navigate('/app');
-  };
-
-  const handleGoogleSignupFailure = (error) => {
-    console.error('Google signup failed', error);
-  };
+  async function handleGoogleSignUp(){
+    console.log("Inside Handle google sign up");
+    window.open("http://localhost:5050/auth/google/sangrakshak","_self");
+  }
 
   return (
-    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+    <>
       <Navbar/>
       <div className="form-container">
         <h2>Sign Up</h2>
-        <form onSubmit={handleSignup}>
-          <input type="username" placeholder="username" required />
-          <input type="email" placeholder="Email" required />
-          <input type="password" placeholder="Password" required />
-          <input type="password" placeholder="Confirm Password" required />
+        <form onSubmit={(e)=>handleSignup(e)}>
+          <input type="username" placeholder="username" value = {username} onChange={(e)=>setUsername(e.target.value)} required />
+          <input type="email" placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} required />
+          <input type="password" placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)} required />
+          <input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e)=>setConfirmPassword(e.target.value)} required />
           <button type="submit">Sign Up</button>
         </form>
+        {message && <><p>{message}</p></>}
         <div className="google-signup">
-          <GoogleLogin
-            onSuccess={handleGoogleSignupSuccess}
-            onFailure={handleGoogleSignupFailure}
+          <GoogleButton
+            onClick={() => handleGoogleSignUp() }
           />
         </div>
         <p>
@@ -46,7 +82,7 @@ const Signup = () => {
         </p>
       </div>
       <Footer/>
-    </GoogleOAuthProvider>
+    </>
   );
 };
 

@@ -5,12 +5,26 @@ import Sidebar from './Sidebar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMicrophone, faMicrophoneSlash } from '@fortawesome/free-solid-svg-icons';
 import './ChatApp.css';
+import { checkAuthStatus } from './../utils';
+import { useNavigate } from 'react-router-dom';
 
-function ChatApp() {
+function ChatApp({ changeIsAuthenticated, handleLogout }) {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
+  const [isAuthenticated, setIsAuthenticatedLocal] = useState(null);
+  const navigate=useNavigate();
+
+  useEffect(() => {
+    const fetchAuthStatus = async () => {
+      const authStatus = await checkAuthStatus();
+      setIsAuthenticatedLocal(authStatus);
+      changeIsAuthenticated(authStatus);  // Update parent state
+    };
+    fetchAuthStatus();
+  }, [changeIsAuthenticated]);
+
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -55,11 +69,20 @@ function ChatApp() {
 
   const [chats] = useState(['Chat 1', 'Chat 2', 'Chat 3']);
 
-  return (
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>; // or some loading spinner
+  }
+
+  return isAuthenticated ? (
     <div className="app">
       <Sidebar chats={chats} />
       <div className="container">
+        <span>
         <h1 className='heading'>SangRakshak</h1>
+        <button onClick={()=>handleLogout()} >
+        Logout
+      </button>
+      </span>
         <div className="chatbox">
           {chatHistory.map((chat, index) => (
             <div key={index} className={`message ${chat.user.toLowerCase()}-message`}>
@@ -86,6 +109,9 @@ function ChatApp() {
         </div>
       </div>
     </div>
+  ) :
+  (
+    navigate("/login")
   );
 }
 
