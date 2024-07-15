@@ -1,0 +1,45 @@
+.hero-section {
+    width: 100%;
+    height: 60vh;
+    background: url('https://media.gettyimages.com/id/97403689/vector/power-fist.jpg?s=612x612&w=gi&k=20&c=X2hTAYeV0qejjrceTjApJt78ejT8_uBWsSX8RnSNbH4=') no-repeat center center/cover;
+    position: relative;
+  }
+  
+  .overlay {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .heading-home {
+    color: #fff;
+    font-size: 3em;
+    text-align: center;
+    animation: fadeIn 2s;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 1em;
+    margin-top: 1em;
+  }
+  
+  .home-button {
+    padding: 0.5em 1em;
+    font-size: 1em;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  
+  .home-button:hover {
+    transform: scale(1.1);
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
