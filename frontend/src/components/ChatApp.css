@@ -132,4 +132,23 @@ body {
     color: #d1d5db;
     margin: 20px 0;
   }
-  
+ 
+  p {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.question {
+    background-color: #676c72;
+    color: #000000;
+    text-align: left;
+    border-left: 4px solid #084298;
+}
+
+.answer {
+    background-color: #5d5454;
+    color: #000000;
+    text-align: right;
+    border-right: 4px solid #a02c2a;
+}
