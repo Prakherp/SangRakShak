@@ -129,5 +129,4 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-backend/.env
-frontend/.env
+backend/package-lock.json
