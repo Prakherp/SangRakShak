@@ -142,13 +142,13 @@ body {
 .question {
     background-color: #676c72;
     color: #000000;
-    text-align: left;
-    border-left: 4px solid #084298;
+    text-align: right;
+    border-left: 4px solid #000000;
 }
 
 .answer {
-    background-color: #5d5454;
-    color: #000000;
-    text-align: right;
-    border-right: 4px solid #a02c2a;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    text-align: left;
+    border-right: 4px solid #000000;
 }

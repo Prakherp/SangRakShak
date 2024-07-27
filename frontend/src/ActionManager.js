@@ -1,4 +1,6 @@
 import { API_URL } from './utils';
+import axios from 'axios';
+import formatResponse from './components/FormatResponse';
 
 require('dotenv').config();
 
@@ -83,4 +85,127 @@ export const logInLocal = async (data)=>{
   const result = await fetch(url,options);
   const resultJson=await result.json();
   return resultJson;
+}
+
+export const getChatNamesAndId = async ()=>{
+  const startTime = Date.now();
+  const url= `${API_URL}/getchatnamesandid`;
+  console.log(url);
+  const options={
+    method: 'GET',
+    credentials: 'include'
+  }
+  const st = Date.now();
+  const result = await fetch(url,options);
+  const resultJson=await result.json();
+  const end = Date.now();
+  console.log(`get JSON with fetch time: ${end - st}ms`);
+  console.log(resultJson);
+  if(resultJson.success=== true){
+    const endTime = Date.now();
+    console.log(`get chat front-end time: ${endTime - startTime}ms`);
+    return resultJson.chats; 
+  }
+  else  
+    return [];
+}
+
+export const getChatById = async(chatId)=>{
+  const url = `${API_URL}/tasks/getchatbyid`;
+  console.log(url);
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({chatId: chatId}),
+    credentials: 'include'
+  }
+  const result = await fetch(url,options);
+  const resultJson=await result.json();
+  console.log(resultJson);
+  if(resultJson.success=== true)
+    return resultJson.chatDetails;  
+  else  
+    return [];
+}
+
+
+export const getChatResponse = async(message)=>{
+  try {
+    const api_url = 'http://127.0.0.1:5000/get-answer';
+    const data = { question: message };
+    const response = await axios.post(api_url, data);
+    
+    // const formattedResponse = await formatResponse(response.data);
+
+    return response.data;
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+export const updateChatById = async(chatId, chatObject)=>{
+  try{
+    const url = `${API_URL}/tasks/updatechatbyid`;
+    console.log(url);
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({chatId: chatId, chatObject: chatObject}),
+      credentials: 'include'
+    }
+    const result = await fetch(url,options);
+    const resultJson=await result.json();
+    return resultJson.success;
+  }catch(err){
+    console.error(err);
+  }
+}
+
+export const createChat = async()=>{
+  const url = `${API_URL}/tasks/createchat`;
+    console.log(url);
+    const options={
+      method: 'GET',
+      credentials: 'include'
+    }
+    const result = await fetch(url, options);
+    const resultJson= await result.json();
+    return resultJson;
+}
+
+export const renameChat = async(chatId, chatName)=>{
+  const url = `${API_URL}/tasks/renamechat`;
+    console.log(url);
+    const options={
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({chatId: chatId, chatName: chatName}),
+      credentials: 'include',
+    }
+    const result = await fetch(url, options);
+    const resultJson= await result.json();
+    return resultJson;
+}
+
+export const deleteChat = async(chatId)=>{
+  const url = `${API_URL}/tasks/deletechat`;
+    console.log(url);
+    const options={
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({chatId: chatId}),
+      credentials: 'include',
+    }
+    const result = await fetch(url, options);
+    const resultJson= await result.json();
+    return resultJson;
 }
