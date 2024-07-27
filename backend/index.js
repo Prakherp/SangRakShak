@@ -12,6 +12,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User=require( './Model/UserModel');
 const bcrypt = require("bcryptjs");
+const UserChatModel = require('./Model/chatModel');
 
 const app = express();
 
@@ -31,13 +32,19 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser((user,done)=>{
-  done(null,user);
+passport.serializeUser((user, done) => {
+  done(null, user.id); // Serialize user by ID
 });
 
-passport.deserializeUser((user,done)=>{
-  done(null,user);
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id); // Find user by ID
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
 });
+
 
 // passport.serializeUser(function(user, cb) {
 //   process.nextTick(function() {
@@ -119,6 +126,7 @@ app.use("/tasks",ModelRouter);
 
 app.get('/auth/status', (req, res) => {
   if (req.isAuthenticated()) {
+    console.log("Given user->",req.user);
     res.json({ authenticated: true });
   } else {
     res.json({ authenticated: false });
@@ -170,7 +178,33 @@ app.post('/logout', function(req, res, next) {
   });
 });
 
+app.get("/checkuser",(req,res)=>{
+  console.log("recieved_request");
+  console.log("requested user->",req.user);
+  res.send("Hi");
+});
 
+
+app.get("/getchatnamesandid", async(req,res)=>{
+  const startTime = Date.now();
+  if(req.isAuthenticated()){
+    const UserChats = await UserChatModel.findOne({userId: req.user._id},{'chats.chatName': 1, 'chats._id': 1});
+    if(UserChats && UserChats.chats){
+      console.log("chats->",UserChats.chats);
+      res.status(200).json({
+        chats: UserChats.chats,
+        success: true,
+      });
+    }
+  }
+  else{
+    res.status(200).json({
+      success: false
+    });
+  }
+  const endTime = Date.now();
+  console.log(`Total request processing time: ${endTime - startTime}ms`);
+})
 
 app.listen(5050, ()=>{
   console.log("Server is running on Port: 5050")

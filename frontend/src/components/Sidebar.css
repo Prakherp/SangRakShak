@@ -32,15 +32,47 @@
     flex-grow: 1;
     overflow-y: auto;
   }
+
+  .chat-item-wrapper {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    width: 100%; /* Make the wrapper full width */
+    margin-bottom: 10px; /* Add some space between items if needed */
+    box-sizing: border-box;
+  }
   
   .chat-item {
     padding: 10px;
     border-bottom: 1px solid #34495e;
+    flex: 1;
+    width: 100%;
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
   
   .chat-item:hover {
     background-color: #34495e;
+  }
+
+  .edit-icon-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    margin-left: 20px;
+    display: flex;
+    align-items: right;
+  }
+  
+  .edit-icon-button svg {
+    width: 10px;
+    height: 10px;
+    fill: currentColor;
+  }
+  
+  .edit-icon-button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
   }
   

@@ -6,6 +6,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import { checkAuthStatus, logOut } from './utils';
 import { useNavigate } from 'react-router-dom';
+import ChatElement from './components/ChatElement';
 
 function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
@@ -36,7 +37,9 @@ function AppContent() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route path="/app" element={<ChatApp changeIsAuthenticated={changeIsAuthenticated} handleLogout={handleLogout} />} />
+      <Route path="/app" element={<ChatApp changeIsAuthenticated={changeIsAuthenticated} handleLogout={handleLogout} />}>
+        <Route path=":chatId" element={<ChatElement />}/>
+      </Route>
     </Routes>
   );
 }

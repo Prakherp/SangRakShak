@@ -1,8 +1,11 @@
 const UserVerification=require('../Model/UserVerification');
 const User=require( '../Model/UserModel');
+const UserChatModel = require('../Model/chatModel');
 const transporter= require("../Model/Mailer");
 const {v4:uuidv4}=require("uuid");
 const bcrypt = require("bcryptjs");
+const chatModel = require('../Model/chatModel');
+const mongoose = require('mongoose');
 
 
 const SendMail = async (req,res)=>{
@@ -138,18 +141,25 @@ async function createUserVerification(data, MailObject){
 const verifyRecord = async (req,res)=>{
   const id=req.params.id;
   const uniqueStr = req.params.uniqueStr;
-  await User.updateOne({_id : id},{$set: {verified: true}}).then(()=>{
-    UserVerification.findOne({userId: id}).then((result)=>{
+  await UserVerification.findOne({userId: id}).then((result)=>{
 
       if(result){   //result for UserId exists in User Verification
         if(result.expiresAt > Date.now()){
           bcrypt.compare(uniqueStr,result.uniqueString).then((isMatched)=>{
             if(isMatched){
-              console.log("Email is successfully verified.");
-              res.status(200).json({
-                message: "The mail is successfully verified.",
-                success: true
-              }); 
+              User.updateOne({_id : id},{$set: {verified: true}}).then(()=>{
+                console.log("Email is successfully verified.");
+                res.redirect("http://localhost:3000/login");
+              }).catch(err=>{
+                res.status(500).json({
+                  message: "Error in verification process.",
+                  success: false
+                });  
+              })
+              // res.status(200).json({
+              //   message: "The mail is successfully verified.",
+              //   success: true
+              // }); 
             }
             else{
               console.log("Unique link does not match. Invalid.");
@@ -191,15 +201,8 @@ const verifyRecord = async (req,res)=>{
         message: "Error in verification process. Try Again.",
         success: false
       }); 
-    })
-  }).catch((err)=>{
-    console.log("Invalid User: ",err);
-    res.status(500).json({
-      message: "There's no user record. Invalid link for verification.",
-      success: false
-    }); 
-  });
-}
+    });
+  }
 
 
 const checkUserLogIn = async (req,res)=>{
@@ -250,10 +253,222 @@ const checkUserLogIn = async (req,res)=>{
     });
 };
 
+const createChat = async (req,res)=>{
+  console.log("Creating chat");
+  console.log(req.user);
+  console.log(req.user._id);
+  if(req.isAuthenticated()){
+    await UserChatModel.findOne({userId: req.user._id}).then((result)=>{
+      console.log("inside");
+      console.log("Result->",result);
+      if(result){
+        console.log("inside2");
+        result.chats.push({
+          chatName: "New Chat",
+          chatDetails: []
+        });
+        result.save();
+        const newChatId = result.chats[result.chats.length - 1]._id;
+        res.status(200).json({
+          success: true,
+          chatId: newChatId,
+          message: "The new chat is created.",
+        });
+      }
+      else{
+        console.log("inside5");
+        const newChat = new UserChatModel({
+          userId: req.user._id,
+          chats: [{
+            chatName: "New Chat",
+            chatDetails: []
+          }]
+        });
+        newChat.save().then(savedChat => {
+          const newChatId = savedChat.chats[0]._id; // Access the ID of the newly added chat
+          res.status(200).json({
+            success: true,
+            message: "The new chat is created for the first time.",
+            chatId: newChatId // Include the new chat ID in the response
+          });
+        }).catch(err => {
+          res.status(500).json({
+            success: false,
+            message: "An error occurred while creating the chat.",
+            error: err.message
+          });
+        });
+      }
+    }).catch(err=>{
+      console.log("error in creating new chat->",err);
+      res.status(500).json({
+        success: false,
+        message: "There is an error in creating new chat.",
+      }); 
+    })
+  }
+  else{
+    res.status(200).json({
+      success: false,
+      message: "The request is not authenticated.",
+    }); 
+  }
+}
+
+const getChatById = async(req,res)=>{
+  if(req.isAuthenticated()){
+    const result = await UserChatModel.findOne({userId: req.user._id,"chats._id": req.body.chatId});
+    const chat = result.chats.find(chatElement => chatElement._id == req.body.chatId);
+    if(chat){
+      console.log(chat.chatDetails);
+      res.status(200).json({
+        chatDetails : chat.chatDetails,
+        success: true
+      });
+    }
+    else{
+      res.status(200).json({
+        success: false
+      });
+    }
+  }
+  else{
+    res.status(200).json({
+      success: false
+    });
+  }
+};
+
+const getChatNamesAndId = async(req,res)=>{
+  const startTime = Date.now();
+  if(req.isAuthenticated()){
+    const UserChats = await UserChatModel.findOne({userId: req.user._id},{'chats.chatName': 1, 'chats._id': 1});
+    if(UserChats && UserChats.chats){
+      console.log("chats->",UserChats.chats);
+      res.status(200).json({
+        chats: UserChats.chats,
+        success: true,
+      });
+    }
+  }
+  else{
+    res.status(200).json({
+      success: false
+    });
+  }
+  const endTime = Date.now();
+  console.log(`Total request processing time: ${endTime - startTime}ms`);
+}
+
+const updateChatById = async(req,res)=>{
+  if(req.isAuthenticated()){
+    const UserChats = await UserChatModel.findOne({userId: req.user._id}); 
+    const chat = UserChats.chats.find(chatElement => chatElement._id == req.body.chatId);
+    console.log("Chat id :",req.body.chatId);
+    console.log("Chat Result->",chat);
+    if(chat){
+      chat.chatDetails.push(req.body.chatObject);
+      UserChats.save();
+      res.status(200).json({
+        success: true,
+        message: "Chat is successfully Updated",
+      });
+    }
+    else{
+      res.status(200).json({
+        success: false,
+        message: "There is no corresponding chat found with the logged in user.",
+      });
+    }
+  }
+  else{
+    res.status(200).json({
+      success: false,
+      message: "The request is not authenticated.",
+    }); 
+  }
+}
+
+const renameChat = async(req,res)=>{
+  if(req.isAuthenticated()){
+    await UserChatModel.findOne({userId: req.user._id}).then((chatRecord)=>{
+      console.log("Chat Record->",chatRecord);
+      if(chatRecord){
+        const chat=chatRecord.chats.find(chatElement =>chatElement._id == req.body.chatId);
+        chat.chatName = req.body.chatName;
+        chatRecord.save();
+        res.status(200).json({
+          success: true,
+          message: "The chat name is successfully updated."
+        });
+      }
+      else{
+        res.status(200).json({
+          success: true,
+          message: "No chat record found with the corresponding details."
+        });
+      }
+    }).catch((err)=>{
+      console.log("Error in the process of renaming chat:",err);
+      res.status(200).json({
+        success: false,
+        message: "Error in the process of renaming chat"
+      });
+    });
+  }
+  else{
+    res.status(200).json({
+      success: false,
+      message: "Unauthorized request."
+    });
+  }
+}
+
+const deleteChat = async(req,res)=>{
+  if(req.isAuthenticated()){
+    await UserChatModel.findOne({userId: req.user._id}).then((chatRecord)=>{
+      console.log("Chat Record->",chatRecord);
+      if(chatRecord){
+        chatRecord.chats=chatRecord.chats.filter(chatElement =>(chatElement._id != req.body.chatId));
+        console.log("Chat Record after deletion =", chatRecord.chats);
+        chatRecord.save();
+        res.status(200).json({
+          success: true,
+          message: "The chat is successfully deleted."
+        });
+      }
+      else{
+        res.status(200).json({
+          success: true,
+          message: "No chat record found with the corresponding details."
+        });
+      }
+    }).catch((err)=>{
+      console.log("Error in the process of deleting chat:",err);
+      res.status(200).json({
+        success: false,
+        message: "Error in the process of deleting chat"
+      });
+    });
+  }
+  else{
+    res.status(200).json({
+      success: false,
+      message: "Unauthorized request."
+    });
+  }
+}
+
 module.exports={
   createUser,
   SendMail,
   verifyRecord,
   checkEmailPresent,
-  checkUserLogIn
+  checkUserLogIn,
+  createChat,
+  getChatNamesAndId,
+  getChatById,
+  updateChatById,
+  renameChat,
+  deleteChat
 }
