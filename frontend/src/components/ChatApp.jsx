@@ -130,7 +130,7 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
       <div className="container">
         <span>
           <h1 className='heading'>SangRakshak</h1>
-          <button onClick={()=>handleLogout()} >
+          <button className='logout-btn'onClick={()=>handleLogout()} >
           Logout
           </button>
         </span>
