@@ -1,6 +1,5 @@
 import { API_URL } from './utils';
 import axios from 'axios';
-import formatResponse from './components/FormatResponse';
 
 require('dotenv').config();
 
@@ -127,7 +126,7 @@ export const getChatById = async(chatId)=>{
   if(resultJson.success=== true)
     return resultJson.chatDetails;  
   else  
-    return [];
+    return [-1];
 }
 
 
@@ -208,4 +207,22 @@ export const deleteChat = async(chatId)=>{
     const result = await fetch(url, options);
     const resultJson= await result.json();
     return resultJson;
+}
+
+export const sendContactMail = async(email, message)=>{
+  const data={
+    email: email,
+    message: message
+  };
+  const url = `${API_URL}/tasks/sendcontactmail`;
+  console.log(url);
+  const options={
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data),
+    credentials: 'include',
+  }
+  fetch(url, options);
 }

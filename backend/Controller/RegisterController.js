@@ -138,6 +138,29 @@ async function createUserVerification(data, MailObject){
   });
 };
 
+
+const sendContactMail=async (req,res)=>{
+  const message = `<div>
+    <h3>Email: </h3>
+    <br/>
+    <p>${req.body.email}</p>
+    <br/>
+    <h3>Message: </h3>
+    <br/>
+    <p>${req.body.message}</p>
+  </div>`
+  transporter.sendMail({
+    from: process.env.AUTH_EMAIL,
+    to:process.env.AUTH_EMAIL,
+    subject: "Contact us update from Sangrakshak",
+    html: message
+  }).then(()=>{
+    console.log("Mail was successfully sent to: ",process.env.AUTH_EMAIL);
+  }).catch((err)=>{
+    console.log("An error has occured while sending the mail.");
+  }); 
+}
+
 const verifyRecord = async (req,res)=>{
   const id=req.params.id;
   const uniqueStr = req.params.uniqueStr;
@@ -155,11 +178,7 @@ const verifyRecord = async (req,res)=>{
                   message: "Error in verification process.",
                   success: false
                 });  
-              })
-              // res.status(200).json({
-              //   message: "The mail is successfully verified.",
-              //   success: true
-              // }); 
+              });
             }
             else{
               console.log("Unique link does not match. Invalid.");
@@ -172,20 +191,27 @@ const verifyRecord = async (req,res)=>{
         }
         else{   //The link is Expired.
           console.log("The link has been expired.");
-
-          User.findOneAndDelete({_id: id}).then(()=>{
-            console.log("The user record is deleted due to expired link");
-            res.status(500).json({
-              message: "The verification link has been expired. Sign up again to register.",
-              success: false
-            });
-          }).catch((err)=>{
-            console.log("The user record could not deleted on receiving expired link.");
-            res.status(500).json({
-              message: "Error in verification process. Try Again.",
-              success: false
-            }); 
-          }); 
+          
+          User.find({_id: id}).then((result)=>{
+            if(result && !result.verified){
+              User.findOneAndDelete({_id: id}).then(()=>{
+                console.log("The user record is deleted due to expired link");
+                res.status(500).json({
+                  message: "The verification link has been expired. Sign up again to register.",
+                  success: false
+                });
+              }).catch((err)=>{
+                console.log("The user record could not deleted on receiving expired link.");
+                res.status(500).json({
+                  message: "Error in verification process. Try Again.",
+                  success: false
+                }); 
+              }); 
+            }
+            else{
+              res.redirect("http://localhost:3000/login");
+            }
+          })
         }
       }     
       else{ //result for user id does not exist in User Verification
@@ -317,7 +343,7 @@ const createChat = async (req,res)=>{
 
 const getChatById = async(req,res)=>{
   if(req.isAuthenticated()){
-    const result = await UserChatModel.findOne({userId: req.user._id,"chats._id": req.body.chatId});
+    const result = await UserChatModel.findOne({userId: req.user._id});
     const chat = result.chats.find(chatElement => chatElement._id == req.body.chatId);
     if(chat){
       console.log(chat.chatDetails);
@@ -333,9 +359,7 @@ const getChatById = async(req,res)=>{
     }
   }
   else{
-    res.status(200).json({
-      success: false
-    });
+    res.redirect("http://localhost:3000/login");
   }
 };
 
@@ -470,5 +494,6 @@ module.exports={
   getChatById,
   updateChatById,
   renameChat,
-  deleteChat
+  deleteChat,
+  sendContactMail
 }

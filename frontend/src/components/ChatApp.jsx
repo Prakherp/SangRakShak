@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from './Sidebar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMicrophone, faMicrophoneSlash } from '@fortawesome/free-solid-svg-icons';
@@ -17,21 +17,30 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
   const [recognition, setRecognition] = useState(null);
   const [isAuthenticated, setIsAuthenticatedLocal] = useState(null);
   const [allowChat, setAllowChat] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   let { chatId } = useParams();
 
   useEffect(() => {
     const fetchAuthStatus = async () => {
       const authStatus = await checkAuthStatus();
+      if(!authStatus)
+        navigate("/login");
       setIsAuthenticatedLocal(authStatus);
       changeIsAuthenticated(authStatus); 
     };
-    fetchAuthStatus();
+
     const updateChat = async () => {
-      if (chatId) {
+      await fetchAuthStatus();
+      if (isAuthenticated && chatId) {
         await getChatById(chatId).then(result => {
-          setChatHistory(result);
+          if(result.length==1 && result[0]==-1){
+            navigate("/app");
+          }
+          else
+            setChatHistory(result);
         });
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
       }
     };
     updateChat();
@@ -86,9 +95,13 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
       const saveMessage = message;
 
       addQuestion(saveMessage);
-
+      setIsLoading(true);
+      window.scroll({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      });
       const response = await getChatResponse(saveMessage);
-
+      setIsLoading(false);
       addAnswer(response);
 
       await updateChatById(chatId, {
@@ -149,6 +162,7 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
                     )}
                   </div>
                 ))}
+                {isLoading && <p className="bg-white text-base-100 p-4 rounded-lg mt-2 border border-gray-300"><span className="loading loading-dots loading-lg"></span></p>} 
               </div>
               <div className="flex fixed bottom-0 left-0 right-0 bg-gray-800 p-4 justify-center">
                 <div className="flex items-center justify-center w-full lg:max-w-4xl mx-auto lg:ml-80">

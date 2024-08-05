@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import instagram from '../assets/insta.svg';
 import facebook from '../assets/facebook.svg';
 import gmail from '../assets/email.svg';
+import { sendContactMail } from '../ActionManager';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [info, setInfo] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Email:', email);
-    console.log('Message:', message);
+    sendContactMail(email,message);
+    setInfo("The Message is sent. Thank you");
     setEmail('');
     setMessage('');
   };
@@ -71,6 +73,7 @@ const Footer = () => {
             <button type="submit" className="btn btn-neutral w-40 hover:bg-blue-700 transition-colors duration-300 ease-in-out">
               Send
             </button>
+            {info && <p>{info}</p>}
           </form>
         </div>
       </div>

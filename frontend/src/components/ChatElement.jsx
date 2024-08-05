@@ -1,13 +1,23 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getChatById } from '../ActionManager';
+import { checkAuthStatus } from "../utils";
+import { useNavigate } from "react-router-dom";
 
 function ChatElement(){
   const [chatDetails, setChatDetails] = useState([]);
   const {chatId} = useParams();
+  const navigate=useNavigate();
 
   useEffect(()=>{
+    const fetchAuthStatus = async () => {
+      const authStatus = await checkAuthStatus();
+      if(authStatus)
+        navigate("/app");
+    }
     async function getChat(){
+      await fetchAuthStatus();
+      console.log("Fetch status");
       await getChatById(chatId).then(result=>{
         setChatDetails(result);
       });

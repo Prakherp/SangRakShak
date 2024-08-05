@@ -16,7 +16,7 @@ const IntroPage = () => {
               As a confidential ally, <span className="text-blue-600 font-bold">Sangrakshak</span> offers guidance on legal rights, procedures, and support resources. Our aim is to help you navigate through the legal landscape with confidence and ease.
             </p>
             <p className="mb-2">
-              For now, our chatbot is equipped to answer only direct queries related to legal matters. We do not support chit-chat conversations such as "Hi," "Hello," etc. This ensures that we stay focused on providing you with accurate and relevant information.
+              For now, our chatbot is equipped to answer only direct queries related to legal matters. We do not support chit-chat conversations such as "Hi", "Hello", etc. This ensures that we stay focused on providing you with accurate and relevant information.
             </p>
             <p>
               Thank you for choosing <span className="text-blue-600 font-bold">Sangrakshak</span> as your trusted legal companion. We are here to assist you every step of the way.

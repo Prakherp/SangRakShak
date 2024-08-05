@@ -1,15 +1,25 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import GoogleButton from 'react-google-button';
 import { logInLocal } from "../ActionManager";
+import { checkAuthStatus } from '../utils';
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState('');
+
+  useEffect(() => {
+    const fetchAuthStatus = async () => {
+      const authStatus = await checkAuthStatus();
+      if(authStatus)
+        navigate("/app");
+    }
+    fetchAuthStatus();
+  });
 
   const handleLogin = async () => {
     setEmail("");
