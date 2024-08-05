@@ -2,44 +2,40 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMicrophone, faMicrophoneSlash } from '@fortawesome/free-solid-svg-icons';
-import './ChatApp.css';
-import { checkAuthStatus, API_URL } from '../utils';
-import { useNavigate, Outlet, useParams } from 'react-router-dom';
+import { checkAuthStatus } from '../utils';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getChatResponse, getChatById, updateChatById, createChat } from '../ActionManager';
 import formatResponse from './FormatResponse';
 import IntroPage from './Introduction_ChatPage';
 
-
 function ChatApp({ changeIsAuthenticated, handleLogout }) {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
+  const [currentQuestions, setCurrentQuestions] = useState([]);
+  const [currentAnswers, setCurrentAnswers] = useState([]);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [isAuthenticated, setIsAuthenticatedLocal] = useState(null);
   const [allowChat, setAllowChat] = useState(true);
-  const [currentChat, setCurrentChat] = useState([]);
-  const navigate=useNavigate();
-  let {chatId} = useParams();
+  const navigate = useNavigate();
+  let { chatId } = useParams();
 
   useEffect(() => {
     const fetchAuthStatus = async () => {
       const authStatus = await checkAuthStatus();
       setIsAuthenticatedLocal(authStatus);
-      changeIsAuthenticated(authStatus);  // Update parent state
+      changeIsAuthenticated(authStatus); 
     };
     fetchAuthStatus();
-    const updateChat = async ()=>{
-      console.log("Chat update");
-      if(chatId){
-        await getChatById(chatId).then(result=>{
+    const updateChat = async () => {
+      if (chatId) {
+        await getChatById(chatId).then(result => {
           setChatHistory(result);
-        })
-        setCurrentChat([]);
+        });
       }
-    }
+    };
     updateChat();
   }, [changeIsAuthenticated, chatId]);
-
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -57,52 +53,53 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
     }
   }, []);
 
-  const checkForChatId = async ()=>{
+  const checkForChatId = async () => {
     if (!chatId) {
       await createChat().then(result => {
-        console.log("result->", result);
         if (result.success === true) {
           navigate(`${result.chatId}`);
         }
         chatId = result.chatId;
       });
     }
-  }
+  };
 
-  const addQuestion = ()=>{
-    setCurrentChat((prevChat) => [...prevChat, message]);
+  const addQuestion = (question) => {
+    setChatHistory((prevChat) => [...prevChat, { question }]);
+    setCurrentQuestions((prevQuestions) => [...prevQuestions, question]);
     setAllowChat(false);
-    setMessage("");
-    console.log("Current Chats1->",currentChat);
-  }
+    setMessage('');
+  };
+
+  const addAnswer = (answer) => {
+    setChatHistory((prevChat) => {
+      const lastItem = prevChat.pop();
+      return [...prevChat, { ...lastItem, answer }];
+    });
+    setCurrentAnswers((prevAnswers) => [...prevAnswers, answer]);
+  };
 
   const sendMessage = async () => {
     await checkForChatId();
-    console.log("chatId->", chatId);
-  
+
     try {
       const saveMessage = message;
-      
-      await addQuestion();
-  
+
+      addQuestion(saveMessage);
+
       const response = await getChatResponse(saveMessage);
-  
-      // Ensure the response is added after the message
-      setCurrentChat((prevChat) => [...prevChat, response]);
-  
+
+      addAnswer(response);
+
       await updateChatById(chatId, {
         question: saveMessage,
         answer: response,
       });
     } catch (error) {
-      console.error("Error fetching chat response:", error);
+      console.error('Error fetching chat response:', error);
     } finally {
       setAllowChat(true);
     }
-  };
-
-  const updateChatHistory = (history)=>{
-    setChatHistory(history);
   };
 
   const handleSpeechRecognition = () => {
@@ -116,67 +113,69 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
     }
   };
 
-  const handleChatClick = async(chatId)=>{
-
-  }
-
   if (isAuthenticated === null) {
-    return <div>Loading...</div>; // or some loading spinner
+    return <div>Loading...</div>; 
   }
 
   return isAuthenticated ? (
-    <div className="app">
-      <Sidebar handleChatClick={handleChatClick} />
-      <div className="container">
-        <span>
-          <h1 className='heading'>SangRakshak</h1>
-          <button className='logout-btn'onClick={()=>handleLogout()} >
-          Logout
-          </button>
-        </span>
-        
-        {!chatId ? <IntroPage /> :
-          (<>
-            <div className="chatbox">
-              {chatHistory.map((chat, index) => (
-                <div key={index} className={`message`}>
-                  <p className='question'>{chat.question}</p>
-                  <p className='answer'>{formatResponse(chat.answer)}</p>
-                </div>
-              ))}
-              {
-                currentChat.map((chat,index)=>(
-                  <div key={index} className={`message`}>
-                    {/* <p className={index%2===0 ? "question": "answer"}>{chat}</p> */}
-                    {index%2==0 ? <p className="question">{chat}</p> : <p className='answer'>{formatResponse(chat)}</p>}
-                  </div>
-                ))
-              }
-            </div>
+    <div className="min-h-screen bg-gray-800 flex flex-col lg:flex-row items-center justify-center py-12 px-4 animate-fade-in">
+      <div className="flex lg:flex-row">
+        <Sidebar />
+      </div>
+      <div className="flex flex-col flex-grow p-6 lg:ml-64 w-full lg:w-auto">
+        <header className="fixed top-0 left-0 right-0 flex justify-between items-center p-4 bg-gray-800 z-10 border-b border-gray-700 text-white">
+          <div className="flex-grow"></div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-center mb-6 text-white lg:flex-grow lg:ml-64">
+            SANGRAKSHAK
+          </h1>
+          <div className="flex-grow flex justify-end">
+            <button className="btn btn-neutral w-30 hover:bg-blue-500 transition-transform transform hover:scale-105 duration-300 ease-in-out" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        </header>
 
-            <div className="input-container">
-              <input
-                type="text"
-                value={message}
-                placeholder='Message SangRakshak'
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (allowChat && e.key === 'Enter') {
-                    sendMessage();
-                  }
-                }}
-              />
-              <button onClick={sendMessage} disabled ={!allowChat}>Send</button>
-              <div className="mic-icon" onClick={handleSpeechRecognition}>
-                <FontAwesomeIcon icon={isListening ? faMicrophoneSlash : faMicrophone} />
+        <main className="min-h-screen flex flex-col flex-grow mt-20 overflow-y-auto pb-24 bg-gray-800">
+          {!chatId ? (
+            <IntroPage />
+          ) : (
+            <>
+              <div className="flex flex-col flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 max-w-4xl mx-auto">
+                {chatHistory.map((chat, index) => (
+                  <div key={index} className="mb-4">
+                    <p className="bg-gray-400 text-base-100 p-4 rounded-lg border border-white text-right">{'User: '+chat.question}</p>
+                    {chat.answer && (
+                      <p className="bg-white text-base-100 p-4 rounded-lg mt-2 border border-gray-300">{formatResponse('Sangrakshak: '+chat.answer)}</p>
+                    )}
+                  </div>
+                ))}
               </div>
-            </div>
-          </>)
-        }
+              <div className="flex fixed bottom-0 left-0 right-0 bg-gray-800 p-4 justify-center">
+                <div className="flex items-center justify-center w-full lg:max-w-4xl mx-auto lg:ml-80">
+                  <input
+                    type="text"
+                    className="input input-bordered w-full lg:max-w-3xl bg-gray-200 text-black"
+                    value={message}
+                    placeholder="Type here"
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (allowChat && e.key === 'Enter') {
+                        sendMessage();
+                      }
+                    }}
+                  />
+                  <button className="btn btn-primary w-38 ml-2 hover:bg-blue-500 transition-transform transform hover:scale-105 duration-300 ease-in-out" onClick={sendMessage} disabled={!allowChat}>Send</button>
+                  <div className="ml-2" onClick={handleSpeechRecognition}>
+                    <FontAwesomeIcon icon={isListening ? faMicrophoneSlash : faMicrophone} className="cursor-pointer" />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </main>
       </div>
     </div>
-  ) :
-  (
+  ) : (
     navigate("/login")
   );
 }

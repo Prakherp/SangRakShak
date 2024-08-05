@@ -5,7 +5,6 @@ import Hero from '../pages/Hero';
 import About from '../pages/AboutUs';
 import Team from '../pages/Team';
 import Footer from '../components/Footer';
-import './HomePage.css';
 
 const HomePage = () => {
   return (

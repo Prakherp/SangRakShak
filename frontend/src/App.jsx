@@ -33,6 +33,7 @@ function AppContent() {
   }
 
   return (
+    <>
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
@@ -41,6 +42,7 @@ function AppContent() {
         <Route path=":chatId" element={<ChatElement />}/>
       </Route>
     </Routes>
+    </>
   );
 }
 
