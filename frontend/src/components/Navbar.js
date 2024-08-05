@@ -53,7 +53,7 @@ const Navbar = () => {
                         <li>{renderLink("team", "Team")}</li>
                     </ul>
                 </div>
-                <a className="btn btn-ghost normal-case text-xl text-white ml-auto">
+                <a className="btn btn-ghost normal-case text-xl text-white ml-auto" href="/">
                     SANGRAKSHAK
                 </a>
             </div>

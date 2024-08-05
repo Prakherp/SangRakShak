@@ -1,9 +1,11 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import GoogleButton from 'react-google-button';
 import bcrypt from 'bcryptjs';
 import { CreateUser, EmailPresent } from '../ActionManager';
+import { checkAuthStatus } from '../utils';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [email, setEmail] = React.useState("");
@@ -12,6 +14,16 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [errors, setErrors] = React.useState({});
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchAuthStatus = async () => {
+      const authStatus = await checkAuthStatus();
+      if(authStatus)
+        navigate("/app");
+    }
+    fetchAuthStatus();
+  });
 
   const validatePassword = () => {
     const errors = {};
