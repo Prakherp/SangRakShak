@@ -192,8 +192,8 @@ const verifyRecord = async (req,res)=>{
         else{   //The link is Expired.
           console.log("The link has been expired.");
           
-          User.find({_id: id}).then((result)=>{
-            if(result && !result.verified){
+          User.findOne({_id: id}).then((result)=>{
+            if(result && result.verified===false){
               User.findOneAndDelete({_id: id}).then(()=>{
                 console.log("The user record is deleted due to expired link");
                 res.status(500).json({
