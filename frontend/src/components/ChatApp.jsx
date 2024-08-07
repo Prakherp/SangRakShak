@@ -156,9 +156,12 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
               <div className="flex flex-col flex-grow overflow-y-auto bg-gray-800 rounded-lg p-4 max-w-4xl mx-auto">
                 {chatHistory.map((chat, index) => (
                   <div key={index} className="mb-4">
-                    <p className="bg-gray-400 text-base-100 p-4 rounded-lg border border-white text-right">{'User: '+chat.question}</p>
+                    <p className="bg-gray-400 text-base-100 p-4 rounded-lg border border-white text-right">
+  <span className="font-bold">User:</span> {chat.question}
+</p>
+
                     {chat.answer && (
-                      <p className="bg-white text-base-100 p-4 rounded-lg mt-2 border border-gray-300">{formatResponse('Sangrakshak: '+chat.answer)}</p>
+                      <p className="bg-white text-base-100 p-4 rounded-lg mt-2 border border-gray-300">{formatResponse('Sangrakshak :'+chat.answer)}</p>
                     )}
                   </div>
                 ))}

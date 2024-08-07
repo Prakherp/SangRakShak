@@ -46,24 +46,6 @@ passport.deserializeUser(async (id, done) => {
 });
 
 
-// passport.serializeUser(function(user, cb) {
-//   process.nextTick(function() {
-//     return cb(null, {
-//       id: user.id,
-//       username: user.username,
-//       picture: user.picture
-//     });
-//   });
-// });
-
-// passport.deserializeUser(function(user, cb) {
-//   process.nextTick(function() {
-//     return cb(null, user);
-//   });
-// });
-
-//passport.use(User.createStrategy());
-
 passport.use(new LocalStrategy(
   { usernameField: 'email', passwordField: 'password' },
   async (email, password, done) => {

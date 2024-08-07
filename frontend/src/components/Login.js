@@ -46,10 +46,10 @@ const Login = () => {
   async function handleGoogleSignIn() {
     console.log("Inside Handle google sign up");
     window.open("http://localhost:5050/auth/google/sangrakshak", "_self");
-    await fetch("http://localhost:5050/checkuser", {
-      method: "GET",
-      credentials: 'include'
-    })
+    // await fetch("http://localhost:5050/checkuser", {
+    //   method: "GET",
+    //   credentials: 'include'
+    // });
   }
 
   return (

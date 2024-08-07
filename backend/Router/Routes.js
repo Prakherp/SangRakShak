@@ -1,4 +1,4 @@
-const {createUser, SendMail,verifyRecord, checkEmailPresent, checkUserLogIn, createChat, getChatNamesAndId, getChatById, updateChatById, renameChat, deleteChat}=require( '../Controller/RegisterController');
+const {createUser, SendMail,verifyRecord, checkEmailPresent, checkUserLogIn, createChat, getChatNamesAndId, getChatById, updateChatById, renameChat, deleteChat, sendContactMail}=require( '../Controller/RegisterController');
 
 
 const router = require('express').Router();
@@ -24,5 +24,7 @@ router.post("/updatechatbyid", updateChatById);
 router.post("/renamechat", renameChat);
 
 router.post("/deletechat",deleteChat);
+
+router.post("/sendcontactmail", sendContactMail);
 
 module.exports = router;
