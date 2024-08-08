@@ -20,13 +20,14 @@ function ChatApp({ handleLogout }) {
   const navigate = useNavigate();
   let { chatId } = useParams();
 
-  useEffect(() => {
-    const fetchAuthStatus = async () => {
+  const fetchAuthStatus = async () => {
       const authStatus = await checkAuthStatus();
       console.log("Auth Status at chatApp: ", authStatus);
       if (!authStatus) navigate("/login");
       setIsAuthenticatedLocal(authStatus);
     };
+
+  useEffect(() => {
 
     const updateChat = async () => {
       await fetchAuthStatus();
