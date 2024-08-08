@@ -26,7 +26,12 @@ app.use(BodyParser.json());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true, // Helps mitigate XSS attacks
+    secure: process.env.NODE_ENV === 'production', // Ensure secure flag is true in production
+    sameSite: 'None', // Required for cross-site requests
+  }
 }));
 
 app.use(passport.initialize());
