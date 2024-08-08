@@ -3,6 +3,7 @@ export const checkAuthStatus = async () => {
     credentials: 'include', // important to include cookies
   });
   const data = await response.json();
+  console.log("Returned response : ",data);
   return data.authenticated;
 };
 
