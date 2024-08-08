@@ -139,7 +139,7 @@ function ChatApp({ handleLogout }) {
     return <div>Loading...</div>;
   }
 
-  return isAuthenticated ? (
+  return isAuthenticated===true ? (
     <div className="min-h-screen bg-gray-800 flex flex-col lg:flex-row items-center justify-center py-12 px-4 animate-fade-in">
       <div className="flex lg:flex-row">
         <Sidebar />
