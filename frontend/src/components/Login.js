@@ -13,13 +13,14 @@ const Login = () => {
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState('');
 
-  useEffect(() => {
-    const fetchAuthStatus = async () => {
+  const fetchAuthStatus = async () => {
       const authStatus = await checkAuthStatus();
       console.log("Auth Status at Login: ", authStatus);
       if(authStatus)
         navigate("/app");
     }
+
+  useEffect(() => {
     fetchAuthStatus();
   });
 
