@@ -21,6 +21,7 @@ app.use(cors({
   methods: "GET,PUT,PUSH,POST,DELETE",
   credentials: true
 }));
+app.set("trust proxy",1);
 app.use(BodyParser.json());
 
 app.use(session({
@@ -28,9 +29,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    httpOnly: true, // Helps mitigate XSS attacks
-    secure: process.env.NODE_ENV === 'production', // Ensure secure flag is true in production
-    sameSite: 'None', // Required for cross-site requests
+    maxAge: 604800000, //one week(1000*60*60*24*7)
+   sameSite: "none",
+   secure : true
   }
 }));
 
