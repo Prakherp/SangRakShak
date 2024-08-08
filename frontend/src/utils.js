@@ -1,9 +1,9 @@
 export const checkAuthStatus = async () => {
   const response = await fetch(process.env.REACT_APP_BACKEND_URL+'/auth/status', {
+     mode: 'cors',
     credentials: 'include', // important to include cookies
   });
   const data = await response.json();
-  console.log("Returned response : ",data);
   return data.authenticated;
 };
 
