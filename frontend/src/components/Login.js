@@ -5,6 +5,7 @@ import Footer from './Footer';
 import GoogleButton from 'react-google-button';
 import { logInLocal } from "../ActionManager";
 import { checkAuthStatus } from '../utils';
+//require("dotenv").config();
 
 const Login = () => {
   const navigate = useNavigate();
@@ -25,13 +26,8 @@ const Login = () => {
     setEmail("");
     setPassword("");
     setError("");
-    console.log("Inside Handle log in");
     try {
       const response = await logInLocal({ email: email, password: password });
-      await fetch("http://localhost:5050/checkuser", {
-        method: "GET",
-        credentials: 'include'
-      })
       if (response.success) {
         navigate("/app");
       } else {
@@ -44,12 +40,7 @@ const Login = () => {
   };
 
   async function handleGoogleSignIn() {
-    console.log("Inside Handle google sign up");
-    window.open("http://localhost:5050/auth/google/sangrakshak", "_self");
-    // await fetch("http://localhost:5050/checkuser", {
-    //   method: "GET",
-    //   credentials: 'include'
-    // });
+    window.open(process.env.REACT_APP_AUTH_GOOGLE_LINK, "_self");
   }
 
   return (

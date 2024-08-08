@@ -27,9 +27,9 @@ const Signup = () => {
 
   const validatePassword = () => {
     const errors = {};
-    const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/;
+    const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]*$/;
     const uppercaseRegex = /[A-Z]/;
-    const specialCharRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+    const specialCharRegex = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
 
     if (password.length < 8) {
       errors.password = 'Password must be at least 8 characters long.';
@@ -52,7 +52,6 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     if (validatePassword()) {
-      console.log("in submit");
       setUsername("");
       setEmail("");
       setPassword("");
@@ -68,14 +67,11 @@ const Signup = () => {
         };
         const presence = await EmailPresent(email);
         if (presence === 1) {
-          console.log("Email is already Present");
           setMessage("Email has been already registered.");
         } else if (presence === 0) {
-          console.log("Email was not already present");
           await CreateUser(UserObject);
           setMessage("User Registered. Please, verify through mail.");
         } else {
-          console.log("Error in checking whether email is present or not. Redirect to error Page.");
           setMessage("Error in registering, try Again.");
         }
       } catch (err) {
@@ -86,8 +82,7 @@ const Signup = () => {
   };
 
   async function handleGoogleSignUp() {
-    console.log("Inside Handle google sign up");
-    window.open("http://localhost:5050/auth/google/sangrakshak", "_self");
+    window.open(process.env.REACT_APP_AUTH_GOOGLE_LINK, "_self");
   }
 
   return (

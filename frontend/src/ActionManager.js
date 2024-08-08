@@ -1,11 +1,7 @@
-import { API_URL } from './utils';
 import axios from 'axios';
 
-require('dotenv').config();
-
 export const CreateUser= async(userObject)=>{
-  const url= `${API_URL}/tasks/createuser`;
-  console.log(url);
+  const url= process.env.REACT_APP_BACKEND_URL + '/tasks/createuser';
   const options={
     method: 'POST',
     headers: {
@@ -15,21 +11,17 @@ export const CreateUser= async(userObject)=>{
   };
 
   const result = await fetch(url,options);
-  console.log(result);
-  const {success,message} = await result.json();
+  const {success} = await result.json();
   if(success){
     console.log("Success");
-    console.log(message);
   }
   else{
     console.log("Failed in creating User");
-    console.log(message);
   }
 };
 
 export const EmailPresent = async(email)=>{
-  const url= `${API_URL}/tasks/checkmail`;
-  console.log(url);
+  const url= process.env.REACT_APP_BACKEND_URL + '/tasks/checkmail';
   const options={
     method: 'POST',
     headers: {
@@ -54,8 +46,7 @@ export const EmailPresent = async(email)=>{
 
 
 export const checkUserLogin = async (data)=>{
-  const url= `${API_URL}/tasks/checkuserlogin`;
-  console.log(url);
+  const url= process.env.REACT_APP_BACKEND_URL + '/tasks/checkuserlogin';
   const options={
     method: 'POST',
     headers: {
@@ -71,8 +62,7 @@ export const checkUserLogin = async (data)=>{
 
 
 export const logInLocal = async (data)=>{
-  const url= `${API_URL}/login`;
-  console.log(url);
+  const url= process.env.REACT_APP_BACKEND_URL + '/login';
   const options={
     method: 'POST',
     headers: {
@@ -87,22 +77,14 @@ export const logInLocal = async (data)=>{
 }
 
 export const getChatNamesAndId = async ()=>{
-  const startTime = Date.now();
-  const url= `${API_URL}/getchatnamesandid`;
-  console.log(url);
+  const url= process.env.REACT_APP_BACKEND_URL + '/getchatnamesandid';
   const options={
     method: 'GET',
     credentials: 'include'
   }
-  const st = Date.now();
   const result = await fetch(url,options);
   const resultJson=await result.json();
-  const end = Date.now();
-  console.log(`get JSON with fetch time: ${end - st}ms`);
-  console.log(resultJson);
   if(resultJson.success=== true){
-    const endTime = Date.now();
-    console.log(`get chat front-end time: ${endTime - startTime}ms`);
     return resultJson.chats; 
   }
   else  
@@ -110,8 +92,7 @@ export const getChatNamesAndId = async ()=>{
 }
 
 export const getChatById = async(chatId)=>{
-  const url = `${API_URL}/tasks/getchatbyid`;
-  console.log(url);
+  const url = process.env.REACT_APP_BACKEND_URL + '/tasks/getchatbyid';
   const options = {
     method: 'POST',
     headers: {
@@ -122,7 +103,6 @@ export const getChatById = async(chatId)=>{
   }
   const result = await fetch(url,options);
   const resultJson=await result.json();
-  console.log(resultJson);
   if(resultJson.success=== true)
     return resultJson.chatDetails;  
   else  
@@ -132,7 +112,7 @@ export const getChatById = async(chatId)=>{
 
 export const getChatResponse = async(message)=>{
   try {
-    const api_url = 'http://127.0.0.1:5000/get-answer';
+    const api_url = process.env.REACT_APP_PYTHON_BACKEND_URL;
     const data = { question: message };
     const response = await axios.post(api_url, data);
     
@@ -147,8 +127,7 @@ export const getChatResponse = async(message)=>{
 
 export const updateChatById = async(chatId, chatObject)=>{
   try{
-    const url = `${API_URL}/tasks/updatechatbyid`;
-    console.log(url);
+    const url = process.env.REACT_APP_BACKEND_URL + '/tasks/updatechatbyid';
     const options = {
       method: 'POST',
       headers: {
@@ -166,8 +145,7 @@ export const updateChatById = async(chatId, chatObject)=>{
 }
 
 export const createChat = async()=>{
-  const url = `${API_URL}/tasks/createchat`;
-    console.log(url);
+  const url = process.env.REACT_APP_BACKEND_URL + '/tasks/createchat';
     const options={
       method: 'GET',
       credentials: 'include'
@@ -178,8 +156,7 @@ export const createChat = async()=>{
 }
 
 export const renameChat = async(chatId, chatName)=>{
-  const url = `${API_URL}/tasks/renamechat`;
-    console.log(url);
+  const url = process.env.REACT_APP_BACKEND_URL + '/tasks/renamechat';
     const options={
       method: 'POST',
       headers: {
@@ -194,8 +171,7 @@ export const renameChat = async(chatId, chatName)=>{
 }
 
 export const deleteChat = async(chatId)=>{
-  const url = `${API_URL}/tasks/deletechat`;
-    console.log(url);
+  const url = process.env.REACT_APP_BACKEND_URL + '/tasks/deletechat';
     const options={
       method: 'POST',
       headers: {
@@ -214,8 +190,7 @@ export const sendContactMail = async(email, message)=>{
     email: email,
     message: message
   };
-  const url = `${API_URL}/tasks/sendcontactmail`;
-  console.log(url);
+  const url = process.env.REACT_APP_BACKEND_URL + '/tasks/sendcontactmail';
   const options={
     method: 'POST',
     headers: {

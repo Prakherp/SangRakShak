@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-import instagram from '../assets/insta.svg';
-import facebook from '../assets/facebook.svg';
-import gmail from '../assets/email.svg';
 import { sendContactMail } from '../ActionManager';
 
 const Footer = () => {
@@ -24,17 +21,17 @@ const Footer = () => {
           <h3 className="text-lg font-bold mb-6 text-center">Contact Us</h3>
           <form onSubmit={handleSubmit} className="flex flex-col items-center">
             <div className="form-control mb-4 w-full max-w-md">
-              <label htmlFor="email" className="label text-base-100">
+              <label htmlFor="emailContact" className="label text-base-100">
                 <span className="label-text font-bold text-base-100">Email:</span>
               </label>
               <div className="input-group flex items-center">
                 <input
                   type="email"
-                  id="email"
+                  id="emailContact"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="input w-full border-0 p-2 rounded-lg base-100"
+                  className=" text-white input w-full border-0 p-2 rounded-lg base-100"
                 />
               </div>
             </div>

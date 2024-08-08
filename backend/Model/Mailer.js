@@ -13,7 +13,7 @@ let transporter=Nodemailer.createTransport({
         rejectUnauthorized:true
     },
   logger: true, // Log information for debugging
-  debug: true, // Show debug output
+  debug: false, // Show debug output
   connectionTimeout: 60000, // Increase timeout to 10 seconds
   socketTimeout: 60000, // Increase socket timeout to 10 seconds
 });

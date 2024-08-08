@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getChatNamesAndId, createChat, renameChat, deleteChat } from '../ActionManager';
 
 const Sidebar = ({ handleChatClick }) => {
@@ -8,9 +8,11 @@ const Sidebar = ({ handleChatClick }) => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [menuOpenIndex, setMenuOpenIndex] = useState(-1);
   const navigate = useNavigate();
+  const {chatId}=useParams();
 
   const getNames = async () => {
     const result = await getChatNamesAndId();
+    result.reverse();
     setCurrentChats(result);
   };
 
@@ -24,13 +26,17 @@ const Sidebar = ({ handleChatClick }) => {
   };
 
   const handleRenameSubmit = async (chatId, value) => {
-    await renameChat(chatId, value);
+    if(value.trim()!=="")
+      await renameChat(chatId, value);
     getNames();
     setRenameIndex(-1);
   };
 
-  const handleDeleteChat = async (chatId) => {
-    await deleteChat(chatId);
+  const handleDeleteChat = async (Id) => {
+    await deleteChat(Id);
+    if(chatId===Id){
+      navigate("/app");
+    }
     getNames();
   };
 
