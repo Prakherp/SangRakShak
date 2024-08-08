@@ -22,7 +22,6 @@ function ChatApp({ handleLogout }) {
 
   const fetchAuthStatus = async () => {
       const authStatus = await checkAuthStatus();
-      console.log("Auth Status at chatApp: ", authStatus);
       if (!authStatus) navigate("/login");
       setIsAuthenticatedLocal(authStatus);
     };
@@ -31,6 +30,7 @@ function ChatApp({ handleLogout }) {
 
     const updateChat = async () => {
       await fetchAuthStatus();
+       console.log("Auth Status at chatApp: ", authStatus);
       if (isAuthenticated && chatId) {
         await getChatById(chatId).then(result => {
           if (result.length === 1 && result[0] === -1) {
