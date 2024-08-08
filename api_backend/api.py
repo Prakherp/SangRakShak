@@ -108,7 +108,9 @@ def generate_answer(db,query):
   
   
   
-db=load_chroma_collection(path= './api_backend/chroma_database_sang', #replace with path of your persistent directory
+current_dir = os.path.dirname(__file__)
+file_path = os.path.join(current_dir, 'chroma_database_sang')   
+db=load_chroma_collection(path= file_path, #replace with path of your persistent directory
                           name="reviews_collections") #replace with the collection name
 
 
