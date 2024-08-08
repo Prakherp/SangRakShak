@@ -23,6 +23,7 @@ function ChatApp({ handleLogout }) {
   useEffect(() => {
     const fetchAuthStatus = async () => {
       const authStatus = await checkAuthStatus();
+      console.log("Auth Status at chatApp: ", authStatus);
       if (!authStatus) navigate("/login");
       setIsAuthenticatedLocal(authStatus);
     };
