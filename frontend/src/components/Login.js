@@ -15,7 +15,7 @@ const Login = () => {
 
   const fetchAuthStatus = async () => {
       const authStatus = await checkAuthStatus();
-      console.log("Auth Status at Login: ", authStatus);
+      //console.log("Auth Status at Login: ", authStatus);
       if(authStatus)
         navigate("/app");
     }
