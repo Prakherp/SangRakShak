@@ -8,43 +8,40 @@ import { getChatResponse, getChatById, updateChatById, createChat } from '../Act
 import formatResponse from './FormatResponse';
 import IntroPage from './Introduction_ChatPage';
 
-function ChatApp({ changeIsAuthenticated, handleLogout }) {
+function ChatApp({ handleLogout }) {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
-  const [currentQuestions, setCurrentQuestions] = useState([]);
-  const [currentAnswers, setCurrentAnswers] = useState([]);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [isAuthenticated, setIsAuthenticatedLocal] = useState(null);
   const [allowChat, setAllowChat] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const messageRef = useRef(null);
   const navigate = useNavigate();
   let { chatId } = useParams();
 
   useEffect(() => {
     const fetchAuthStatus = async () => {
       const authStatus = await checkAuthStatus();
-      if(!authStatus)
-        navigate("/login");
+      if (!authStatus) navigate("/login");
       setIsAuthenticatedLocal(authStatus);
-      changeIsAuthenticated(authStatus); 
     };
 
     const updateChat = async () => {
       await fetchAuthStatus();
       if (isAuthenticated && chatId) {
         await getChatById(chatId).then(result => {
-          if(result.length==1 && result[0]==-1){
+          if (result.length === 1 && result[0] === -1) {
             navigate("/app");
-          }
-          else
+          } else {
             setChatHistory(result);
+          }
         });
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
       }
     };
     updateChat();
-  }, [changeIsAuthenticated, chatId]);
+  }, [ chatId, isAuthenticated, navigate]);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -75,7 +72,7 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
 
   const addQuestion = (question) => {
     setChatHistory((prevChat) => [...prevChat, { question }]);
-    setCurrentQuestions((prevQuestions) => [...prevQuestions, question]);
+    //setCurrentQuestions((prevQuestions) => [...prevQuestions, question]);
     setAllowChat(false);
     setMessage('');
   };
@@ -85,10 +82,12 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
       const lastItem = prevChat.pop();
       return [...prevChat, { ...lastItem, answer }];
     });
-    setCurrentAnswers((prevAnswers) => [...prevAnswers, answer]);
+    //setCurrentAnswers((prevAnswers) => [...prevAnswers, answer]);
   };
 
   const sendMessage = async () => {
+    if(message.trim()==="")
+        return;
     await checkForChatId();
 
     try {
@@ -104,10 +103,12 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
       setIsLoading(false);
       addAnswer(response);
 
-      await updateChatById(chatId, {
-        question: saveMessage,
-        answer: response,
-      });
+      if(response.trim()!==""){
+        await updateChatById(chatId, {
+          question: saveMessage,
+          answer: response,
+        });
+      }
     } catch (error) {
       console.error('Error fetching chat response:', error);
     } finally {
@@ -126,8 +127,16 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
     }
   };
 
+  const handleInputChange = (e) => {
+    setMessage(e.target.value);
+    if (messageRef.current) {
+      messageRef.current.style.height = 'auto';
+      messageRef.current.style.height = `${messageRef.current.scrollHeight}px`;
+    }
+  };
+
   if (isAuthenticated === null) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>;
   }
 
   return isAuthenticated ? (
@@ -157,30 +166,38 @@ function ChatApp({ changeIsAuthenticated, handleLogout }) {
                 {chatHistory.map((chat, index) => (
                   <div key={index} className="mb-4">
                     <p className="bg-gray-400 text-base-100 p-4 rounded-lg border border-white text-right">
-  <span className="font-bold">User:</span> {chat.question}
-</p>
+                      <span className="font-bold">User:</span> {chat.question}
+                    </p>
 
-                    {chat.answer && (
-                      <p className="bg-white text-base-100 p-4 rounded-lg mt-2 border border-gray-300">{formatResponse('Sangrakshak :'+chat.answer)}</p>
+                    {chat.answer && (<div>
+                      <div className="bg-white text-base-100 p-4 rounded-lg mt-2 border border-gray-300">{formatResponse('Sangrakshak :'+chat.answer)}</div>
+                      </div>
                     )}
                   </div>
                 ))}
-                {isLoading && <p className="bg-white text-base-100 p-4 rounded-lg mt-2 border border-gray-300"><span className="loading loading-dots loading-lg"></span></p>} 
+                {isLoading && <p className="bg-white text-base-100 p-4 rounded-lg mt-2 border border-gray-300"><span className="loading loading-dots loading-lg"></span></p>}
               </div>
               <div className="flex fixed bottom-0 left-0 right-0 bg-gray-800 p-4 justify-center">
                 <div className="flex items-center justify-center w-full lg:max-w-4xl mx-auto lg:ml-80">
-                  <input
-                    type="text"
-                    className="input input-bordered w-full lg:max-w-3xl bg-gray-200 text-black"
+                  <textarea
+                    ref={messageRef}
+                    className="textarea textarea-bordered w-full lg:max-w-3xl bg-gray-200 text-black"
                     value={message}
                     placeholder="Type here"
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyDown={(e) => {
-                      if (allowChat && e.key === 'Enter') {
+                      if (allowChat && e.key === 'Enter' && !e.shiftKey) {
+                        if (messageRef.current) {
+                          messageRef.current.style.height = 'auto';
+                          messageRef.current.style.height = `${messageRef.current.scrollHeight}px`;
+                        }
+                        e.preventDefault();
                         sendMessage();
                       }
                     }}
-                  />
+                    rows={1} // Set an initial number of rows
+                    style={{ resize: 'none' }} // Disable manual resizing
+                  ></textarea>
                   <button className="btn btn-primary w-38 ml-2 hover:bg-blue-500 transition-transform transform hover:scale-105 duration-300 ease-in-out" onClick={sendMessage} disabled={!allowChat}>Send</button>
                   <div className="ml-2" onClick={handleSpeechRecognition}>
                     <FontAwesomeIcon icon={isListening ? faMicrophoneSlash : faMicrophone} className="cursor-pointer" />

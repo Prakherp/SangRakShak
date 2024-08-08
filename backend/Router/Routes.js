@@ -25,6 +25,6 @@ router.post("/renamechat", renameChat);
 
 router.post("/deletechat",deleteChat);
 
-router.post("/sendcontactmail", sendContactMail);
+router.post("/sendContactMail",sendContactMail);
 
 module.exports = router;

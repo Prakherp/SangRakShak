@@ -17,14 +17,14 @@ const UserChatModel = require('./Model/chatModel');
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: process.env.FRONT_URL,
   methods: "GET,PUT,PUSH,POST,DELETE",
   credentials: true
 }));
 app.use(BodyParser.json());
 
 app.use(session({
-  secret:"This is a secret!",
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false
 }));
@@ -49,8 +49,6 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new LocalStrategy(
   { usernameField: 'email', passwordField: 'password' },
   async (email, password, done) => {
-    console.log("email->",email);
-    console.log("password->",password);
     try {
       const user = await User.findOne({ email });
       if (!user) {
@@ -73,7 +71,7 @@ passport.use(new LocalStrategy(
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:5050/auth/google/sangrakshak"
+  callbackURL: (process.env.AUTH_GOOGLE_LINK+"/sangrakshak")
 },
 async function(accessToken, refreshToken, profile, done) {
   try{
@@ -108,7 +106,6 @@ app.use("/tasks",ModelRouter);
 
 app.get('/auth/status', (req, res) => {
   if (req.isAuthenticated()) {
-    console.log("Given user->",req.user);
     res.json({ authenticated: true });
   } else {
     res.json({ authenticated: false });
@@ -120,10 +117,10 @@ app.get('/auth/google',
 );
  
 app.get('/auth/google/sangrakshak', 
-  passport.authenticate('google', { scope: ['profile','email'],failureRedirect: 'http://localhost:3000/signin' }),
+  passport.authenticate('google', { scope: ['profile','email'],failureRedirect: (process.env.FRONT_URL+'/signin') }),
   function(req, res) {
     // Successful authentication, redirect home.
-    res.redirect('http://localhost:3000/app');
+    res.redirect(process.env.FRONT_URL+'/app');
   }
 );
 
@@ -161,18 +158,14 @@ app.post('/logout', function(req, res, next) {
 });
 
 app.get("/checkuser",(req,res)=>{
-  console.log("recieved_request");
-  console.log("requested user->",req.user);
   res.send("Hi");
 });
 
 
 app.get("/getchatnamesandid", async(req,res)=>{
-  const startTime = Date.now();
   if(req.isAuthenticated()){
     const UserChats = await UserChatModel.findOne({userId: req.user._id},{'chats.chatName': 1, 'chats._id': 1});
     if(UserChats && UserChats.chats){
-      console.log("chats->",UserChats.chats);
       res.status(200).json({
         chats: UserChats.chats,
         success: true,
@@ -184,10 +177,8 @@ app.get("/getchatnamesandid", async(req,res)=>{
       success: false
     });
   }
-  const endTime = Date.now();
-  console.log(`Total request processing time: ${endTime - startTime}ms`);
 })
 
 app.listen(5050, ()=>{
-  console.log("Server is running on Port: 5050")
+  console.log("Server is running on Port:" + (process.env.PORT || 5050));
 });

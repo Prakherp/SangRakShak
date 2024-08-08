@@ -9,7 +9,6 @@ const mongoose = require('mongoose');
 
 
 const SendMail = async (req,res)=>{
-  console.log(req.body);
   transporter.sendMail({
     from: req.body.sender,
     to: req.body.reciever,
@@ -24,7 +23,6 @@ const SendMail = async (req,res)=>{
       });
     }
     else{
-      console.log("Mail sent successfully to: ",req.body.reciever);
       res.status(200).json({
         message: "Mail sent",
         success: true
@@ -34,11 +32,8 @@ const SendMail = async (req,res)=>{
 }
 
 const checkEmailPresent = async (req,res) =>{
-  console.log("In checkEmail");
   await User.find({email: req.body.email}).then((result)=>{
-    console.log("Result size ",result.length);
     if(result.length){
-      console.log("The mail is already present");
       res.status(200).json({
         messgae: "The mail is already present.",
         present: true
@@ -63,13 +58,11 @@ const checkEmailPresent = async (req,res) =>{
 const createUser= async (req,res)=>{
   const data = req.body;
   const userInstance= await new User(data);
-  console.log(userInstance.email);
   await userInstance.save().then(()=>{
-    console.log("User is created.");
     const url=process.env.BASE_URL;
     const uniqueId= uuidv4() + userInstance._id;
     const verificationLink=`${url}/tasks/verify/user/${userInstance._id}/${uniqueId}`;
-    const message=`<p> Hi ${req.body.username},<p><br><p>Plase click on the following link to verify your email on <em>SANGRAKSHAK</em>:</p><br> <a href="${verificationLink}">${verificationLink}</a><br><br><p>Thank you<br> Sangrakshak Team</p>`;
+    const message=`<p> Hi ${req.body.username},<p><br><p>Plase click on the following link to verify your email on <em>SANGRAKSHAK</em>:</p><br> <a href="${verificationLink}">${verificationLink}</a><br><br><p><strong>Note<strong/>: The link is only valid till 6 hours from now.</p><p>Thank you<br> Sangrakshak Team</p>`;
     
     bcrypt.hash(uniqueId,10).then((hashedId)=>{
       const UserVerificationObject={
@@ -112,6 +105,7 @@ const deleteUser = async(req,res)=>{
       success: true
     });
   }).catch((err)=>{
+    console.log("Error in deletion process: ",err);
     res.status(500).json({
       message:"The user record is not deleted. Try again.",
       success: false
@@ -122,7 +116,6 @@ const deleteUser = async(req,res)=>{
 async function createUserVerification(data, MailObject){
   const userVerificationInstance= await new UserVerification(data);
   await userVerificationInstance.save().then(()=>{
-    console.log("User Verification record is created.");
     transporter.sendMail({
       from: MailObject.from,
       to: MailObject.to,
@@ -172,7 +165,7 @@ const verifyRecord = async (req,res)=>{
             if(isMatched){
               User.updateOne({_id : id},{$set: {verified: true}}).then(()=>{
                 console.log("Email is successfully verified.");
-                res.redirect("http://localhost:3000/login");
+                res.redirect(process.env.FRONT_URL+"/login");
               }).catch(err=>{
                 res.status(500).json({
                   message: "Error in verification process.",
@@ -190,10 +183,9 @@ const verifyRecord = async (req,res)=>{
           });
         }
         else{   //The link is Expired.
-          console.log("The link has been expired.");
           
-          User.find({_id: id}).then((result)=>{
-            if(result && !result.verified){
+          User.findOne({_id: id}).then((result)=>{
+            if(result && result.verified===false){
               User.findOneAndDelete({_id: id}).then(()=>{
                 console.log("The user record is deleted due to expired link");
                 res.status(500).json({
@@ -209,7 +201,7 @@ const verifyRecord = async (req,res)=>{
               }); 
             }
             else{
-              res.redirect("http://localhost:3000/login");
+              res.redirect(process.env.FRONT_URL+"/login");
             }
           })
         }
@@ -234,7 +226,6 @@ const verifyRecord = async (req,res)=>{
 const checkUserLogIn = async (req,res)=>{
   const email = req.body.email;
   const password = req.body.password;
-  console.log("Password: ",password);
   await User.findOne({email: email}).then(result=>{
     console.log(result);
       if(result){
@@ -280,15 +271,9 @@ const checkUserLogIn = async (req,res)=>{
 };
 
 const createChat = async (req,res)=>{
-  console.log("Creating chat");
-  console.log(req.user);
-  console.log(req.user._id);
   if(req.isAuthenticated()){
     await UserChatModel.findOne({userId: req.user._id}).then((result)=>{
-      console.log("inside");
-      console.log("Result->",result);
       if(result){
-        console.log("inside2");
         result.chats.push({
           chatName: "New Chat",
           chatDetails: []
@@ -302,7 +287,6 @@ const createChat = async (req,res)=>{
         });
       }
       else{
-        console.log("inside5");
         const newChat = new UserChatModel({
           userId: req.user._id,
           chats: [{
@@ -346,7 +330,6 @@ const getChatById = async(req,res)=>{
     const result = await UserChatModel.findOne({userId: req.user._id});
     const chat = result.chats.find(chatElement => chatElement._id == req.body.chatId);
     if(chat){
-      console.log(chat.chatDetails);
       res.status(200).json({
         chatDetails : chat.chatDetails,
         success: true
@@ -359,16 +342,14 @@ const getChatById = async(req,res)=>{
     }
   }
   else{
-    res.redirect("http://localhost:3000/login");
+    res.redirect(process.env.FRONT_URL+"/login");
   }
 };
 
 const getChatNamesAndId = async(req,res)=>{
-  const startTime = Date.now();
   if(req.isAuthenticated()){
     const UserChats = await UserChatModel.findOne({userId: req.user._id},{'chats.chatName': 1, 'chats._id': 1});
     if(UserChats && UserChats.chats){
-      console.log("chats->",UserChats.chats);
       res.status(200).json({
         chats: UserChats.chats,
         success: true,
@@ -380,16 +361,12 @@ const getChatNamesAndId = async(req,res)=>{
       success: false
     });
   }
-  const endTime = Date.now();
-  console.log(`Total request processing time: ${endTime - startTime}ms`);
 }
 
 const updateChatById = async(req,res)=>{
   if(req.isAuthenticated()){
     const UserChats = await UserChatModel.findOne({userId: req.user._id}); 
     const chat = UserChats.chats.find(chatElement => chatElement._id == req.body.chatId);
-    console.log("Chat id :",req.body.chatId);
-    console.log("Chat Result->",chat);
     if(chat){
       chat.chatDetails.push(req.body.chatObject);
       UserChats.save();
@@ -416,7 +393,6 @@ const updateChatById = async(req,res)=>{
 const renameChat = async(req,res)=>{
   if(req.isAuthenticated()){
     await UserChatModel.findOne({userId: req.user._id}).then((chatRecord)=>{
-      console.log("Chat Record->",chatRecord);
       if(chatRecord){
         const chat=chatRecord.chats.find(chatElement =>chatElement._id == req.body.chatId);
         chat.chatName = req.body.chatName;
@@ -451,10 +427,8 @@ const renameChat = async(req,res)=>{
 const deleteChat = async(req,res)=>{
   if(req.isAuthenticated()){
     await UserChatModel.findOne({userId: req.user._id}).then((chatRecord)=>{
-      console.log("Chat Record->",chatRecord);
       if(chatRecord){
         chatRecord.chats=chatRecord.chats.filter(chatElement =>(chatElement._id != req.body.chatId));
-        console.log("Chat Record after deletion =", chatRecord.chats);
         chatRecord.save();
         res.status(200).json({
           success: true,
@@ -468,7 +442,6 @@ const deleteChat = async(req,res)=>{
         });
       }
     }).catch((err)=>{
-      console.log("Error in the process of deleting chat:",err);
       res.status(200).json({
         success: false,
         message: "Error in the process of deleting chat"

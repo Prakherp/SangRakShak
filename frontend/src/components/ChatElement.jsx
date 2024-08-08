@@ -17,14 +17,13 @@ function ChatElement(){
     }
     async function getChat(){
       await fetchAuthStatus();
-      console.log("Fetch status");
       await getChatById(chatId).then(result=>{
         setChatDetails(result);
       });
       
     }
     getChat();
-  },[chatId]);
+  },[chatId, navigate]);
 
   return (
     <>
