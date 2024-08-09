@@ -7,6 +7,24 @@ const Navbar = () => {
     const [scrolled, setScrolled] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const location = useLocation();
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    // Define a media query for small screens
+    const mediaQuery = window.matchMedia('(max-width: 450px)'); // 640px corresponds to "sm" in Tailwind CSS
+
+    // Handler to call on screen size change
+    const handleMediaQueryChange = (e) => {
+      setIsSmallScreen(e.matches);
+    };
+
+    // Initial check
+    handleMediaQueryChange(mediaQuery);
+
+    // Listen for screen size changes
+    mediaQuery.addListener(handleMediaQueryChange);
+  }, []);
+
 
     const toggleMenu = () => {
         setShowMenu(prev => !prev);
@@ -53,9 +71,9 @@ const Navbar = () => {
                         <li>{renderLink("team", "Team")}</li>
                     </ul>
                 </div>
-                <a className="btn btn-ghost normal-case text-xl text-white ml-auto" href="/">
+                {!isSmallScreen && (<a className="btn btn-ghost normal-case text-xl text-white ml-auto" href="/">
                     SANGRAKSHAK
-                </a>
+                </a>)}
             </div>
             {showMenu
             }
