@@ -20,14 +20,15 @@ function ChatApp({ handleLogout }) {
   const navigate = useNavigate();
   let { chatId } = useParams();
 
-  const fetchAuthStatus = async () => {
+  useEffect(() => {
+    const fetchAuthStatus = async () => {
       const authStatus = await checkAuthStatus();
-    //console.log("Auth Status at chatApp: ", authStatus);
-      if (!authStatus) navigate("/login");
+      console.log("The Auth status is: ",authStatus);
+      if (!authStatus){ 
+        navigate("/login");
+      }
       setIsAuthenticatedLocal(authStatus);
     };
-
-  useEffect(() => {
 
     const updateChat = async () => {
       await fetchAuthStatus();
@@ -141,7 +142,7 @@ function ChatApp({ handleLogout }) {
     return <div>Loading...</div>;
   }
 
-  return isAuthenticated===true ? (
+  return isAuthenticated ? (
     <div className="min-h-screen bg-gray-800 flex flex-col lg:flex-row items-center justify-center py-12 px-4 animate-fade-in">
       <div className="flex lg:flex-row">
         <Sidebar />
@@ -179,11 +180,11 @@ function ChatApp({ handleLogout }) {
                 ))}
                 {isLoading && <p className="bg-white text-base-100 p-4 rounded-lg mt-2 border border-gray-300"><span className="loading loading-dots loading-lg"></span></p>}
               </div>
-              <div className="flex fixed bottom-0 left-0 right-0 bg-gray-800 p-4 justify-center">
+              <div className="flex fixed bottom-0 left-0 right-0 bg-gray-800 p-4 max-w-7xl justify-center mx-auto">
                 <div className="flex items-center justify-center w-full lg:max-w-4xl mx-auto lg:ml-80">
                   <textarea
                     ref={messageRef}
-                    className="textarea textarea-bordered w-full lg:max-w-3xl bg-gray-200 text-black"
+                    className="textarea textarea-bordered w-full lg:max-w-3xl bg-gray-200 text-black mx-auto"
                     value={message}
                     placeholder="Type here"
                     onChange={handleInputChange}
