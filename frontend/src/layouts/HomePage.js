@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { Element } from 'react-scroll';
 import Navbar from '../components/Navbar';
 import Hero from '../pages/Hero';
