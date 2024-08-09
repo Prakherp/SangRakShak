@@ -7,6 +7,9 @@ import Team from '../pages/Team';
 import Footer from '../components/Footer';
 
 const HomePage = () => {
+  useEffect(()=>{
+    fetch(process.env.REACT_APP_BACKEND_URL);
+  });
   return (
     <div>
       <Navbar/>
