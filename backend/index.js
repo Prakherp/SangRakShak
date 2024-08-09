@@ -104,6 +104,14 @@ async function(accessToken, refreshToken, profile, done) {
 
 
 app.get("/",function(req,res){
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({question: "My husband beats me, what should i do ?"}),
+  }
+  fetch(process.env.PYTHON_BACKEND_URL, options);
   res.send("Hi, from the server. It's running.");
 });
 
