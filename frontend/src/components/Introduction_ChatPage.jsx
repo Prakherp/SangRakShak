@@ -9,16 +9,16 @@ const IntroPage = () => {
             Welcome to Sangrakshak
           </h1>
           <div className="text-base-100 mt-1">
-            <p className="mb-2">
+            <p className="mb-2" style={{textAlign: "justify"}}>
               <span className="text-blue-600 font-bold">Sangrakshak</span> is a groundbreaking chatbot designed to empower Indian women facing legal challenges. We understand the complexities and sensitivities involved in legal matters, and we are here to provide you with the support you need.
             </p>
-            <p className="mb-2">
+            <p className="mb-2" style={{textAlign: "justify"}}>
               As a confidential ally, <span className="text-blue-600 font-bold">Sangrakshak</span> offers guidance on legal rights, procedures, and support resources. Our aim is to help you navigate through the legal landscape with confidence and ease.
             </p>
-            <p className="mb-2">
+            <p className="mb-2"  style={{textAlign: "justify"}}>
               For now, our chatbot is equipped to answer only direct queries related to legal matters. We do not support chit-chat conversations such as "Hi", "Hello", etc. This ensures that we stay focused on providing you with accurate and relevant information.
             </p>
-            <p>
+            <p style={{textAlign: "justify"}}>
               Thank you for choosing <span className="text-blue-600 font-bold">Sangrakshak</span> as your trusted legal companion. We are here to assist you every step of the way.
             </p>
           </div>
