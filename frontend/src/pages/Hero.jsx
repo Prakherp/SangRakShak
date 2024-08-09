@@ -13,7 +13,7 @@ const Hero = () => {
       id="home"
     >
       <div className="flex flex-col items-start space-y-4">
-        <div className="hero-content text-neutral-content text-left max-w-lg ml-10 lg:ml-60 lg:mt-0 mt-10">
+        <div className="hero-content text-neutral-content text-left max-w-lg ml-10 lg:ml-60 lg:mt-0 mt-20">
           <h1 className="mb-8 text-5xl lg:text-6xl font-bold animate__animated animate__fadeIn animate__delay-1s">
             WELCOME TO SANGRAKSHAK
           </h1>
