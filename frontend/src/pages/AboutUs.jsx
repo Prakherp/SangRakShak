@@ -12,7 +12,7 @@ const AboutUs = () => {
             Sangrakshak, a one-of-a-kind chatbot, is designed to empower Indian women navigating legal challenges. Our mission is to ensure that every woman in India has access to anonymous and approachable legal support. Sangrakshak focuses on empowering women facing issues like domestic violence, sexual harassment, and privacy violations. Think of Sangrakshak as your confidential ally. We provide information on legal rights, procedures, and support resources, all while keeping your privacy and security at the forefront.
           </p>
           <div className="flex justify-center mt-6">
-            <a href="/login" className="btn btn-primary hover:bg-blue-700 transition-colors duration-300 ease-in-out ">Learn More</a>
+            <a href="/login" className="btn btn-primary hover:bg-blue-700 transition-colors duration-300 ease-in-out ">TRY NOW!</a>
           </div>
         </div>
       </div>
