@@ -9,6 +9,23 @@ const Sidebar = ({ handleChatClick }) => {
   const [menuOpenIndex, setMenuOpenIndex] = useState(-1);
   const navigate = useNavigate();
   const {chatId}=useParams();
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    // Define a media query for small screens
+    const mediaQuery = window.matchMedia('(max-width: 450px)'); // 640px corresponds to "sm" in Tailwind CSS
+
+    // Handler to call on screen size change
+    const handleMediaQueryChange = (e) => {
+      setIsSmallScreen(e.matches);
+    };
+
+    // Initial check
+    handleMediaQueryChange(mediaQuery);
+
+    // Listen for screen size changes
+    mediaQuery.addListener(handleMediaQueryChange);
+  }, []);
 
   const getNames = async () => {
     const result = await getChatNamesAndId();
@@ -75,6 +92,12 @@ const Sidebar = ({ handleChatClick }) => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
         </svg>
       </button>
+      {sidebarVisible && (isSmallScreen && (
+        <div 
+          className="fixed inset-0 bg-black opacity-50 z-30"
+          onClick={toggleSidebar}
+        ></div>
+      ))}
       <div 
         className={`sidebar bg-base-100 text-white p-4 h-full ${!sidebarVisible ? 'hidden' : 'block'} fixed top-0 left-0 z-40 w-64 overflow-y-auto`}
       >
