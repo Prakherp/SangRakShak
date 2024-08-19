@@ -1,15 +1,10 @@
 import google.generativeai as genai
-import pysqlite3
-import sys
-sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 from chromadb import Documents, EmbeddingFunction, Embeddings
 import chromadb
 import os
 import flask, requests, jsonify
 from flask import Flask, request
 from flask_cors import CORS
-
-os.environ["GEMINI_API_KEY"] = "AIzaSyBvYKOy0tw7-hWuAL7WTENAVVj4qlPrFxU"
 
 class GeminiEmbeddingFunction(EmbeddingFunction):
     """
@@ -66,14 +61,22 @@ def load_chroma_collection(path, name):
 
 
 
-def make_rag_prompt(query, relevant_passage):
+def make_rag_prompt(query, relevant_passage, val=1):
   escaped = relevant_passage.replace("'", "").replace('"', "").replace("\n", " ")
-  prompt = ("""As a helpful assistant, your task is to provide advice to Indian females who have experienced any form of crime against them those mentioned in the question. Your goal is to offer guidance on the legal actions they can take in response to the crimes committed. Provide supportive and informative advice to assist them in understanding their legal rights and options
-  QUESTION: '{query}'
-  PASSAGE: '{relevant_passage}'
+  if val==1:
+      prompt = ("""As a helpful assistant, your task is to provide advice to Indian females who have experienced any form of crime against them those mentioned in the question. Your goal is to offer guidance on the legal actions they can take in response to the crimes committed. Provide supportive and informative advice to assist them in understanding their legal rights and options
+      QUESTION: '{query}'
+      PASSAGE: '{relevant_passage}'
 
-  ANSWER:
-  """).format(query=query, relevant_passage=escaped)
+      ANSWER:
+      """).format(query=query, relevant_passage=escaped)
+  else:
+      prompt = ("""Sangrakshak is a unique chatbot designed to empower Indian women by providing anonymous and approachable legal support. Our mission is to assist women facing issues like domestic violence, sexual harassment, and privacy violations, ensuring they have access to information on their legal rights, procedures, and support resources. However, this query seems to be general or conversational in nature and not directly related to the legal challenges Sangrakshak addresses. Please respond in a general manner suitable for casual conversations while maintaining a polite and helpful tone.
+      QUESTION: '{query}'
+      PASSAGE: '{relevant_passage}'
+
+      ANSWER:
+      """).format(query=query, relevant_passage=escaped)
 
   return prompt
 
@@ -90,22 +93,33 @@ def generate_answer_api(prompt):
   
   
 
-def get_relevant_passage(query, db, n_results):
-  passage = db.query(query_texts=[query], n_results=n_results)['documents'][0]
-  return passage
+def get_relevant_passage(query, db, n_results, max_distance_threshold=0.7):
+    results = db.query(query_texts=[query], n_results=n_results)
+    
+    # Filter documents based on the distance threshold
+    filtered_documents = []
+    for doc, distance in zip(results['documents'], results['distances'][0]):
+        if distance <= max_distance_threshold:  # Only consider documents below the threshold
+            filtered_documents.append(doc)
+    
+    if not filtered_documents:  # No documents within the acceptable distance
+        return None
+    
+    return filtered_documents[0]  # Return the top filtered document
 
 
 
 
-def generate_answer(db,query):
-    #retrieve top 3 relevant text chunks
-    relevant_text = get_relevant_passage(query,db,n_results=3)
-    prompt = make_rag_prompt(query,
-                             relevant_passage="".join(relevant_text)) # joining the relevant chunks to create a single passage
+def generate_answer(db, query):
+    relevant_text = get_relevant_passage(query, db, n_results=3)
+    if relevant_text is None:  # No relevant passage found
+        prompt=make_rag_prompt(query, relevant_passage=query,val=2) 
+        answer = generate_answer_api(prompt) 
+        return answer
+    
+    prompt = make_rag_prompt(query, relevant_passage="".join(relevant_text),val=1)
     answer = generate_answer_api(prompt)
-
     return answer
-  
   
   
 current_dir = os.path.dirname(__file__)
