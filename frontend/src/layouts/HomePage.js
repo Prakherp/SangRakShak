@@ -8,6 +8,14 @@ import Footer from '../components/Footer';
 
 const HomePage = () => {
   useEffect(()=>{
+    const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({question: "Hi"}),
+  }
+  fetch(process.env.REACT_APP_PYTHON_BACKEND_URL, options);
     fetch(process.env.REACT_APP_BACKEND_URL);
   });
   return (
