@@ -63,7 +63,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="input input-bordered w-full bg-gray-100 text-base-100 placeholder-gray-500"
-                placeholder="Email"
+                placeholder="testify4us@gmail.com"
               />
             </div>
             <div className="form-control">
@@ -77,7 +77,7 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="input input-bordered w-full bg-gray-100 text-base-100 placeholder-gray-500"
-                placeholder="Password"
+                placeholder="Testify@123"
               />
             </div>
             <div className='flex justify-center'>
